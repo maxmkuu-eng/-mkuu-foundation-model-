@@ -8,6 +8,8 @@
 - A basic autoregressive training loop with gradient accumulation and checkpoint saving/resume.
 - Conversational behaviour specification in `docs/BEHAVIOUR_SPEC.md` and intended behaviour settings in `configs/behaviour.yaml`.
 - Eight original synthetic Tanzanian Kiswahili dialogue examples in `data/behaviour_seed.jsonl`, with usage and licensing notes in `data/BEHAVIOUR_DATA_README.md`.
+- Initial supervised conversation fine-tuning script in `training/sft.py`, with `configs/sft_300m.yaml` and usage/limitations in `training/SFT_README.md`.
+- SFT masks system/user prompt tokens and computes loss on assistant response tokens only; seed examples include explicit synthetic provenance.
 - Small unit tests and a GitHub Actions CPU test workflow.
 
 ## Dataset preparation progress
@@ -30,7 +32,7 @@
 - No pretrained weights or checkpoint.
 - No completed pretraining run.
 - No Android APK or on-device inference runtime.
-- No measured test report yet. CI must run on GitHub before tests can be called passing.
+- The SFT pipeline has been added but has not yet been executed end-to-end; it still needs a compatible tokenizer and base checkpoint. No measured SFT quality report exists.
 
 ## Parameter target
 The configured dimensions imply approximately 304M parameters with untied token embeddings and output projection. Run the parameter-count script and record its actual output before treating the count as verified.
