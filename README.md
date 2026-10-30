@@ -46,8 +46,16 @@ python tokenizer/train_tokenizer.py --input data/processed/tokenizer_train.txt -
 ```
 Use the actual vocabulary size printed by SentencePiece in the model config. See `tokenizer/TOKENIZER_DATA_README.md`. A tiny smoke-test model config is provided at `configs/model_tiny_smoke.yaml`; it is for pipeline checks only, not quality training.
 
-## Voice / speech
-The intended speech architecture is documented in `speech/SPEECH_SPEC.md` and `configs/speech.yaml`. It requires a speech-to-text component for listening and text-to-speech for spoken replies. These are design targets only; no audio runtime or working voice capability is included yet.
+## Offline speech output (TTS)
+MKUU now has a basic offline Swahili speech-output adapter based on the open-source eSpeak NG engine. It speaks text through the host audio output or creates a WAV file. Install the system engine first:
+
+```bash
+sudo apt install espeak-ng
+python -m speech.tts_espeak "Habari, karibu MKUU AI."
+python -m speech.tts_espeak "Habari, karibu MKUU AI." --output artifacts/mkuu_reply.wav
+```
+
+The default voice is eSpeak NG's `sw` Swahili voice. It is synthetic and can sound robotic; Tanzanian native-speaker evaluation and a more natural voice are future work. The Python adapter does not yet add microphone input or integrate playback controls into the separate Android app. See `speech/SPEECH_SPEC.md`.
 
 ## Data rules
 Follow `data/SOURCES.md` and `data/RAW_DATA_README.md` for source admission and intake. Every source must have documented provenance and license/permission. Keep personal or sensitive information out. Deduplicate, filter low-quality text, retain language metadata, and reserve a held-out evaluation split. Never assume that publicly accessible means licensed for training.
