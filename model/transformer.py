@@ -17,7 +17,7 @@ def apply_rope(x, positions, theta=10000.0):
     half = dim // 2
     freq = theta ** (-torch.arange(half, device=x.device, dtype=torch.float32) / half)
     angle = positions.float().unsqueeze(-1) * freq
-    cos, sin = angle.cos().to(x.dtype).unsqueeze(1), angle.sin().to(x.dtype).unsqueeze(1)
+    cos, sin = angle.cos().to(x.dtype).unsqueeze(0).unsqueeze(0), angle.sin().to(x.dtype).unsqueeze(0).unsqueeze(0)
     a, b = x[..., :half], x[..., half:]
     return torch.cat((a*cos-b*sin, b*cos+a*sin), dim=-1)
 
