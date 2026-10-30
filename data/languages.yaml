@@ -1,6 +1,7 @@
 # Initial language coverage plan for MKUU Foundation Model.
-# This is a target list, not a claim that training data has been collected.
-# Prioritize balanced, licensed data; never fill quotas with unlicensed text.
+# This is a starting list only, not a fixed limit or a claim of current model support.
+# Long-term goal: worldwide multilingual coverage; prioritize African languages.
+# Add languages as licensed, representative data and fluent-speaker evaluation become available.
 languages:
   - {code: sw, name: Kiswahili, priority: 1}
   - {code: en, name: English, priority: 1}
