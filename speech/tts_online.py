@@ -88,8 +88,11 @@ def synthesize(
             raise OnlineSpeechError(status.get("error", "TTS job failed"))
         if status.get("status") == "completed":
             result_url = status.get("result_url")
-            if not result_url or not result_url.startswith("https://"):
-                raise OnlineSpeechError("TTS.ai returned an invalid audio URL.")
+            if not result_url:
+                raise OnlineSpeechError("TTS.ai did not return an audio URL.")
+            parsed_result = urllib.parse.urlparse(result_url)
+            if parsed_result.scheme != "https" or parsed_result.hostname not in {"api.tts.ai", "tts.ai"}:
+                raise OnlineSpeechError("TTS.ai returned an untrusted audio URL.")
             try:
                 with urllib.request.urlopen(result_url, timeout=timeout) as response:
                     audio = response.read()
@@ -105,14 +108,36 @@ def synthesize(
     raise OnlineSpeechError("TTS job timed out while waiting for audio.")
 
 
+def list_voices(*, language: str = "sw", model: str | None = None, timeout: int = 20) -> list[dict]:
+    """Fetch available provider voices so callers can verify voice IDs."""
+    params = {"language": language}
+    if model:
+        params["model"] = model
+    query = urllib.parse.urlencode(params)
+    request = urllib.request.Request(f"{API_BASE}/voices/?{query}", headers={"Accept": "application/json"})
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, ValueError) as exc:
+        raise OnlineSpeechError(f"Could not list TTS voices: {exc}") from exc
+    voices = payload.get("voices")
+    if not isinstance(voices, list):
+        raise OnlineSpeechError("TTS.ai returned an invalid voice list.")
+    return voices
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="MKUU online Swahili TTS")
     parser.add_argument("text")
     parser.add_argument("--output", default="artifacts/mkuu_online_reply.mp3")
     parser.add_argument("--voice", default="Lanfrica")
+    parser.add_argument("--list-voices", action="store_true", help="List provider voices for Swahili and exit")
     parser.add_argument("--acknowledge-noncommercial", action="store_true")
     args = parser.parse_args()
     try:
+        if args.list_voices:
+            print(json.dumps(list_voices(), ensure_ascii=False, indent=2))
+            return 0
         path = synthesize(args.text, args.output, voice=args.voice,
                           acknowledge_noncommercial=args.acknowledge_noncommercial)
     except (OnlineSpeechError, ValueError) as exc:
