@@ -28,6 +28,15 @@ Train a SentencePiece tokenizer only on text you are permitted to use:
 python tokenizer/train_tokenizer.py --input data/processed/train.txt --model-prefix artifacts/mkuu_spm --vocab-size 48000
 ```
 
+Split a reviewed corpus by document (deterministic 80/10/10 target; all records
+from one document stay together). Each row must include `document_id`:
+```bash
+python data/split_dataset.py --input data/processed/all.jsonl --output-dir data/approved
+```
+This writes `train.jsonl`, `validation.jsonl` and `test.jsonl`. The splitter
+rejects missing provenance and exact duplicate text. Review split counts and
+source balance before training; the ratios are targets, not a quality guarantee.
+
 Prepare licensed JSONL records:
 ```bash
 python data/prepare_jsonl.py --input data/raw/input.jsonl --output data/processed/train.jsonl
