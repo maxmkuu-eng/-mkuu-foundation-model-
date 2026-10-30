@@ -5,6 +5,7 @@ the training pipeline executes; it does NOT measure language quality or create
 a production-ready model.
 """
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -17,7 +18,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def run(*args):
-    subprocess.run([sys.executable, *map(str, args)], cwd=ROOT, check=True)
+    # Executing training/pretrain.py makes Python put training/ (not the
+    # repository root) on sys.path. Add the root so imports such as "from model"
+    # resolve exactly as they do when the package is imported from the repo.
+    env = os.environ.copy()
+    existing = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = str(ROOT) if not existing else str(ROOT) + os.pathsep + existing
+    subprocess.run([sys.executable, *map(str, args)], cwd=ROOT, env=env, check=True)
 
 
 def main():
@@ -44,8 +51,8 @@ def main():
         with seed.open(encoding="utf-8") as src, pretrain_data.open("w", encoding="utf-8") as dst:
             for line in src:
                 row = json.loads(line)
-                text = "\n".join(m["content"] for m in row["messages"])
-                dst.write(json.dumps({"text": text}, ensure_ascii=False) + "\n")
+                text = "\\n".join(m["content"] for m in row["messages"])
+                dst.write(json.dumps({"text": text}, ensure_ascii=False) + "\\n")
 
         config = {
             "model": {
