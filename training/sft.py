@@ -43,6 +43,7 @@ def encode_conversation(messages, tokenizer, max_length):
 class ConversationDataset(Dataset):
     def __init__(self, path, tokenizer, max_length):
         self.rows = []
+        self.max_length = max_length
         with open(path, encoding="utf-8") as stream:
             for line_no, line in enumerate(stream, 1):
                 if not line.strip():
