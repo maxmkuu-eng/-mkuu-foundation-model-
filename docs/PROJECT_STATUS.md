@@ -8,6 +8,12 @@
 - A basic autoregressive training loop with gradient accumulation and checkpoint saving/resume.
 - Small unit tests and a GitHub Actions CPU test workflow.
 
+## Dataset preparation progress
+- Added an initial 12-language coverage plan in `data/languages.yaml`.
+- Added source licensing/provenance admission rules in `data/SOURCES.md` and raw intake instructions in `data/RAW_DATA_README.md`.
+- Fixed newline output in the JSONL-to-text export script.
+- No corpus has yet been collected, license-reviewed or approved; no source should be treated as admitted.
+
 ## What does not exist yet
 - No trained tokenizer model.
 - No curated or licensed training corpus.
