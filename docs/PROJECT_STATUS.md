@@ -11,7 +11,8 @@
 - Initial supervised conversation fine-tuning script in `training/sft.py`, with `configs/sft_300m.yaml` and usage/limitations in `training/SFT_README.md`.
 - Tokenizer corpus builder in `data/build_tokenizer_corpus.py`; SentencePiece training now registers chat role markers and reports the actual vocabulary size.
 - Tiny 128-hidden, 2-layer smoke-test config in `configs/model_tiny_smoke.yaml`.
-- Speech input/output design and zero-budget integration targets in `speech/SPEECH_SPEC.md` and `configs/speech.yaml`.
+- Offline Swahili TTS adapter in `speech/tts_espeak.py`, using the system eSpeak NG executable to play speech or write WAV files.
+- Speech input/output design and integration targets in `speech/SPEECH_SPEC.md` and `configs/speech.yaml`.
 - SFT masks system/user prompt tokens and computes loss on assistant response tokens only; seed examples include explicit synthetic provenance.
 - Small unit tests and a GitHub Actions CPU test workflow.
 
@@ -29,13 +30,18 @@
 - Multilingual conversational registers, humour and cultural context should be learned and evaluated separately for each language.
 - These are specifications for future training and evaluation, not capabilities already demonstrated by the untrained model.
 
+## Speech status
+- Implemented: offline eSpeak NG Swahili TTS adapter; can synthesize text to WAV or invoke local playback when the eSpeak NG executable is installed.
+- Not implemented: speech recognition/listening (ASR), microphone capture, Android app integration, barge-in controls, or a trained natural Tanzanian voice.
+- eSpeak NG's Swahili voice is a basic synthetic baseline and must not be described as a natural Tanzanian voice without native-speaker evaluation.
+
 ## What does not exist yet
 - No trained tokenizer model.
 - No curated or licensed training corpus.
 - No pretrained weights or checkpoint.
 - No completed pretraining run.
 - No Android APK or on-device inference runtime.
-- No working speech input/output yet: ASR, TTS, audio capture/runtime and speech checkpoints remain unimplemented. Speech files are design/configuration only.
+- No ASR model or speech checkpoints; microphone capture and Android app integration remain unimplemented.
 - The SFT pipeline has been added but has not yet been executed end-to-end; it still needs a compatible tokenizer and base checkpoint. No measured SFT quality report exists.
 
 ## Parameter target
