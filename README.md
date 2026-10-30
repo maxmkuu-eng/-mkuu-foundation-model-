@@ -36,7 +36,7 @@ python training/pretrain.py --config configs/model_300m.yaml --data data/process
 ```
 
 ## Data rules
-Every source must have documented provenance and license/permission. Keep personal or sensitive information out. Deduplicate, filter low-quality text, retain language metadata, and reserve a held-out evaluation split. Never assume that publicly accessible means licensed for training.
+Follow `data/SOURCES.md` and `data/RAW_DATA_README.md` for source admission and intake. Every source must have documented provenance and license/permission. Keep personal or sensitive information out. Deduplicate, filter low-quality text, retain language metadata, and reserve a held-out evaluation split. Never assume that publicly accessible means licensed for training.
 
 ## Repository policy
 Do not commit large datasets, credentials, API keys, or model checkpoints. Store checkpoints only in a permitted storage location and document their provenance.
