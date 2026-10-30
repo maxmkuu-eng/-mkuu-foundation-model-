@@ -55,3 +55,10 @@ Only use datasets whose licenses explicitly permit the intended training use. Ke
 
 ## Android testing path
 An APK can be built as a test client once a stable inference artifact and tokenizer format are selected. A random-initialized model is not a useful conversational assistant. Do not label a UI demo as a working AI model. The Android packaging stage is blocked on trained/exported model weights and a tested mobile inference path.
+
+
+## Online speech output
+- Added an online TTS.ai adapter in `speech/tts_online.py` that submits a job, polls for completion and downloads MP3 output.
+- Provider-documented anonymous allowance: 5,000 characters/day, 500 characters/request, 10 requests/minute (subject to provider changes).
+- The configured Swahili Piper voice Lanfrica is marked non-commercial only; adapter requires explicit acknowledgement. It is not approved for a commercial MKUU release.
+- Android app/chat runtime playback integration and ASR remain unimplemented.
