@@ -11,7 +11,15 @@ class TextDataset(Dataset):
         self.seq_len=seq_len
         with open(path,encoding="utf-8") as f:
             for line_no,line in enumerate(f,1):
-                ids=tokenizer.encode(json.loads(line)["text"],out_type=int)
+                if not line.strip():
+                    continue
+                row=json.loads(line)
+                if not row.get("license") or not row.get("source"):
+                    raise ValueError(f"Line {line_no}: license and source provenance are required")
+                text=row.get("text")
+                if not isinstance(text,str) or not text.strip():
+                    raise ValueError(f"Line {line_no}: text must be non-empty")
+                ids=tokenizer.encode(text,out_type=int)
                 for start in range(0,max(0,len(ids)-1),seq_len):
                     chunk=ids[start:start+seq_len+1]
                     if len(chunk)>1:
