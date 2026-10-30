@@ -21,7 +21,8 @@ class TextDataset(Dataset):
     def __len__(self): return len(self.rows)
     def __getitem__(self,i):
         ids=self.rows[i]
-        x,y=ids[:-1],ids[1:]
+        # Model.forward performs the next-token shift; return unshifted labels.
+        x,y=ids[:-1],ids
         pad=self.seq_len-len(x)
         if pad>0:
             x=x+[0]*pad
@@ -83,9 +84,9 @@ def main():
         else:
             continue
         break
-    # Flush a final partial accumulation so gradients are not silently discarded.
     if micro%accum:
-        scale=accum/(micro%accum)
+        remainder=micro%accum
+        scale=accum/remainder
         for param in model.parameters():
             if param.grad is not None: param.grad.mul_(scale)
         torch.nn.utils.clip_grad_norm_(model.parameters(),float(tc.get("max_grad_norm",1.0)))
