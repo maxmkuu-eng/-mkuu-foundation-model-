@@ -10,13 +10,21 @@ speech:
       - punctuation
       - sw_tz_slang_and_swanglish_transcription
       - regional_accent_evaluation
+    status: not_implemented
   output:
     required: true
+    engine: espeak-ng
+    adapter: speech/tts_espeak.py
+    language_voice: sw
+    default_speed_words_per_minute: 155
     tasks:
       - text_to_speech
-      - natural_tanzanian_kiswahili_pronunciation
+      - swahili_speech_synthesis
       - adjustable_speaking_rate
-      - interruptible_playback
+      - wav_file_output
+      - direct_host_playback
+    status: implemented_baseline_requires_espeak_ng
+    quality_note: synthetic_voice_not_yet_validated_for_tanzanian_pronunciation
   privacy:
     explicit_microphone_permission: true
     recording_indicator: true
@@ -25,4 +33,7 @@ speech:
     paid_api_dependencies: false
     provider_neutral_interfaces: true
     require_license_review: true
-  status: design_only_not_implemented
+  platform_limitations:
+    python_adapter_requires_espeak_ng_cli: true
+    android_app_integration: not_implemented
+  status: partial_tts_implemented_asr_pending
