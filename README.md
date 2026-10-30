@@ -33,6 +33,17 @@ Prepare licensed JSONL records:
 python data/prepare_jsonl.py --input data/raw/input.jsonl --output data/processed/train.jsonl
 ```
 
+Generate locally from a trained checkpoint (no hosted model/API):
+```bash
+python scripts/generate.py --checkpoint checkpoints/sft/last.pt --tokenizer artifacts/mkuu_spm.model --prompt "Habari, unaweza kujitambulisha?"
+```
+
+Evaluate only on a separately held-out, provenance-labelled split:
+```bash
+python scripts/evaluate.py --checkpoint checkpoints/pretrain/last.pt --tokenizer artifacts/mkuu_spm.model --data data/approved/test.jsonl --split test
+```
+Each evaluation record must include `text`, `license`, `source`, and `split=test`. The script reports token-weighted cross-entropy and perplexity; these metrics do not replace human evaluation.
+
 Training requires a trained tokenizer and a prepared dataset:
 ```bash
 python training/pretrain.py --config configs/model_300m.yaml --data data/processed/train.jsonl --tokenizer artifacts/mkuu_spm.model
