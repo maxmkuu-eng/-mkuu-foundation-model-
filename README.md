@@ -65,3 +65,8 @@ Do not commit large datasets, credentials, API keys, or model checkpoints. Store
 
 ## Architecture
 Decoder-only Transformer, RMSNorm, rotary position embeddings, causal scaled-dot-product attention, SwiGLU feed-forward layers, and autoregressive next-token prediction.
+
+
+## Online speech output (TTS)
+
+An online adapter for TTS.ai is available in `speech/tts_online.py`. It submits text, waits for the generated audio and saves an MP3. The provider documents an anonymous free allowance of 5,000 characters/day, up to 500 characters per request. The configured Swahili Piper voice `Lanfrica` is marked **non-commercial only** by the provider; the adapter requires an explicit acknowledgement and it must not be enabled in a commercial MKUU release. This is a test integration, not unlimited hosting. See `speech/SPEECH_SPEC.md` and `configs/speech.yaml`. The separate Android app is not yet connected to this adapter.
