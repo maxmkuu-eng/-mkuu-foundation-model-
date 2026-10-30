@@ -13,7 +13,7 @@ def export_text(input_path, output_path):
             text = row.get("text", "").strip()
             if not text:
                 continue
-            dst.write(text.replace("\\n", " ") + "\\n")
+            dst.write(text.replace("\n", " ") + "\n")
             count += 1
     return count
 
