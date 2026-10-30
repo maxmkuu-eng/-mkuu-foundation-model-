@@ -8,7 +8,7 @@ from data.split_dataset import split_records
 def write_rows(path, rows):
     with path.open("w", encoding="utf-8") as stream:
         for row in rows:
-            stream.write(json.dumps(row, ensure_ascii=False) + "\\n")
+            stream.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
 def test_split_is_deterministic_and_keeps_documents_together(tmp_path):
