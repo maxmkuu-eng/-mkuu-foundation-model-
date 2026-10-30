@@ -1,6 +1,6 @@
 # MKUU dataset sourcing register
 
-This file defines the source-admission process. **No dataset is approved merely because it is publicly downloadable.** No source has been imported or approved yet.
+This file defines the source-admission process. **No dataset is approved merely because it is publicly downloadable.** No raw dataset has been imported or approved yet.
 
 ## Required admission checks
 
@@ -18,9 +18,11 @@ If training rights are unclear, mark the source **pending** and do not ingest it
 
 ## Candidate source register
 
-| Dataset/source | Languages | Version | License / permission evidence | Training allowed? | Decision |
+| Dataset/source | Languages | Version | License / permission evidence | Intended use | Decision |
 |---|---|---|---|---|---|
-| Mozilla Common Voice Scripted Speech 25.0 — Swahili (`sw`, including `sw-baratz`) | Kiswahili; Tanzania variety identified in release metadata | 25.0 (2026-03-09) | CC0-1.0 reported in release datasheet; [Mozilla Data Collective](https://datacollective.mozillafoundation.org/datasets/cmn3ailbd008nmb07mjyu3xro) | Likely yes under CC0; verify the exact downloaded release terms and attribution/privacy notes | Pending intake and release verification |
+| Mozilla Common Voice Scripted Speech | Swahili, including Tanzania mainland variety where present | 27.0 (current release announced 2026-09-18) | Mozilla states Common Voice datasets are CC0; [legal terms](https://commonvoice.mozilla.org/dav/terms) and [Data Collective catalogue](https://commonvoice.mozilla.org/dav/datasets) | Speech recognition/transcription; extracted sentence text may be assessed for language-model pretraining, not conversational SFT | Pending: verify Swahili 27.0 package, exact metadata, text availability, privacy and quality |
+| Mozilla Common Voice Spontaneous Speech | Swahili is newly listed among supported languages | 5.0 (released 2026-09-18) | Mozilla states Common Voice datasets are CC0; [legal terms](https://commonvoice.mozilla.org/dav/terms) and [Data Collective catalogue](https://commonvoice.mozilla.org/dav/datasets) | Potential conversational-style language exposure only after transcript and prompt/response structure are inspected; not automatically suitable for SFT | Pending: verify Swahili package availability, transcript license/terms, consent/privacy and dataset structure |
+| Mozilla Common Voice Scripted Speech 25.0 — Swahili (\`sw\`, including \ `sw-baratz`) | Kiswahili; Tanzania variety identified in release metadata | 25.0 (2026-03-09) | CC0-1.0 reported in [release datasheet](https://test-proxy.konza.go.ke/items/28fba537-6452-4676-a1cc-7430cfb82964); [Mozilla Data Collective](https://datacollective.mozillafoundation.org/datasets/cmn3ailbd008nmb07mjyu3xro) | Speech/transcription; candidate sentence text for language exposure only | Pending: superseded by newer release candidate; retain as historical metadata until 27.0 is verified |
 
 ## Record format
 
@@ -39,12 +41,13 @@ See [languages.yaml](languages.yaml). The list is a coverage plan, not evidence 
 
 Keep train, validation and test splits separate by document/source where possible to reduce leakage. Deduplicate exact and near-duplicate text, detect language, filter boilerplate and malformed text, and measure token counts per language. Preserve provenance through every transformation.
 
-## Candidate research note (not yet admitted)
+## Intake decision
 
-Mozilla Common Voice's Swahili 25.0 release metadata reports CC0-1.0 and
-identifies a Tanzanian mainland variety (`sw-baratz`) with 22,486 clips.
-This is a speech/transcription corpus, not a conversational text corpus. It
-may provide useful Tanzanian sentence text for base-language exposure after
-the release is downloaded and its exact terms, text fields, quality, duplicates
-and privacy requirements are checked. Do not treat this candidate as approved
-or mix it into conversational SFT data. See the [release datasheet](https://test-proxy.konza.go.ke/items/28fba537-6452-4676-a1cc-7430cfb82964).
+No corpus has been downloaded, imported into training data, or approved for training by this change. Mozilla's current terms say Common Voice datasets are offered under CC0 through Mozilla Data Collective and ask users not to post, distribute or mirror the datasets elsewhere; access should remain through MDC. Respect that restriction and keep raw files out of this Git repository. See [Common Voice Legal Terms](https://commonvoice.mozilla.org/dav/terms).
+
+## References
+
+- [Mozilla Common Voice 27.0 / Spontaneous Speech 5.0 release announcement (2026-09-18)](https://discourse.mozilla.org/t/common-voice-scripted-speech-v27-0-and-spontaneous-speech-v5-0-released/149490)
+- [Mozilla Common Voice Legal Terms](https://commonvoice.mozilla.org/dav/terms)
+- [Mozilla Data Collective dataset catalogue](https://commonvoice.mozilla.org/dav/datasets)
+- [Common Voice Swahili 25.0 release datasheet](https://test-proxy.konza.go.ke/items/28fba537-6452-4676-a1cc-7430cfb82964)
