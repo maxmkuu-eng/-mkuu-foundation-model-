@@ -1,6 +1,6 @@
 # MKUU Foundation Model
 
-A from-scratch, decoder-only Transformer research project targeting approximately 300M parameters and African-language coverage.
+A from-scratch, decoder-only Transformer research project targeting approximately 300M parameters. The long-term goal is worldwide multilingual support, with deliberate priority for African languages.
 
 ## Status
 This repository contains the initial model implementation and training scaffolding. It is not a trained or production-ready language model. No pretrained weights are included.
@@ -9,7 +9,10 @@ This repository contains the initial model implementation and training scaffoldi
 The project is designed to run with free, permitted compute only. Do not rent GPUs, subscribe to paid services, or add paid API dependencies. Meaningful 300M-parameter pretraining may not be feasible on free compute; begin with CPU smoke tests and small experiments, then use genuinely free and available GPU sessions with frequent checkpoints.
 
 ## Languages
-The tokenizer and data pipeline are language-agnostic. Initial evaluation should cover Kiswahili, English, Hausa, Yoruba, Amharic, and additional African languages as licensed data becomes available.
+There is no fixed 12-language limit. The list in `data/languages.yaml` is an initial planning list, not the boundary of the model's language coverage. Expand toward languages worldwide as suitable licensed data and competent evaluation become available. Give African languages deliberate priority. Do not claim support for a language before evaluating it with fluent speakers.
+
+## Conversational behaviour
+See `docs/BEHAVIOUR_SPEC.md` and `configs/behaviour.yaml`. The intended character is warm, playful and naturally humorous, with good tone control. Tanzanian Kiswahili must include both standard usage and authentic everyday mtaani language, idioms, shorthand and natural Swanglish. The model should support broad, open discussion without unnecessary refusals, while retaining proportionate safeguards against facilitating real-world harm. These are design targets, not capabilities of the current untrained model.
 
 ## Quick start
 ```bash
