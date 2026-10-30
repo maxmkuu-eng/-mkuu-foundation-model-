@@ -9,6 +9,9 @@
 - Conversational behaviour specification in `docs/BEHAVIOUR_SPEC.md` and intended behaviour settings in `configs/behaviour.yaml`.
 - Eight original synthetic Tanzanian Kiswahili dialogue examples in `data/behaviour_seed.jsonl`, with usage and licensing notes in `data/BEHAVIOUR_DATA_README.md`.
 - Initial supervised conversation fine-tuning script in `training/sft.py`, with `configs/sft_300m.yaml` and usage/limitations in `training/SFT_README.md`.
+- Tokenizer corpus builder in `data/build_tokenizer_corpus.py`; SentencePiece training now registers chat role markers and reports the actual vocabulary size.
+- Tiny 128-hidden, 2-layer smoke-test config in `configs/model_tiny_smoke.yaml`.
+- Speech input/output design and zero-budget integration targets in `speech/SPEECH_SPEC.md` and `configs/speech.yaml`.
 - SFT masks system/user prompt tokens and computes loss on assistant response tokens only; seed examples include explicit synthetic provenance.
 - Small unit tests and a GitHub Actions CPU test workflow.
 
@@ -32,6 +35,7 @@
 - No pretrained weights or checkpoint.
 - No completed pretraining run.
 - No Android APK or on-device inference runtime.
+- No working speech input/output yet: ASR, TTS, audio capture/runtime and speech checkpoints remain unimplemented. Speech files are design/configuration only.
 - The SFT pipeline has been added but has not yet been executed end-to-end; it still needs a compatible tokenizer and base checkpoint. No measured SFT quality report exists.
 
 ## Parameter target
