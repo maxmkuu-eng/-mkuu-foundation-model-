@@ -9,7 +9,7 @@
 - Conversational behaviour specification in `docs/BEHAVIOUR_SPEC.md` and intended behaviour settings in `configs/behaviour.yaml`.
 - Eight original synthetic Tanzanian Kiswahili dialogue examples in `data/behaviour_seed.jsonl`, with usage and licensing notes in `data/BEHAVIOUR_DATA_README.md`.
 - Initial supervised conversation fine-tuning script in `training/sft.py`, with `configs/sft_300m.yaml` and usage/limitations in `training/SFT_README.md`.
-- Tokenizer corpus builder in `data/build_tokenizer_corpus.py`; SentencePiece training now registers chat role markers and reports the actual vocabulary size.
+- Tokenizer corpus builder in `data/build_tokenizer_corpus.py`; SentencePiece training now registers chat role markers and reports the actual vocabulary size.\n- Deterministic document-grouped train/validation/test splitter in `data/split_dataset.py`, with provenance requirements and exact-duplicate rejection; covered by dedicated tests.
 - Tiny 128-hidden, 2-layer smoke-test config in `configs/model_tiny_smoke.yaml`.
 - Offline Swahili TTS adapter in `speech/tts_espeak.py`, using the system eSpeak NG executable to play speech or write WAV files.
 - Speech input/output design and integration targets in `speech/SPEECH_SPEC.md` and `configs/speech.yaml`.
