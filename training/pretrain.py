@@ -10,7 +10,7 @@ class TextDataset(Dataset):
         self.rows=[]
         self.seq_len=seq_len
         with open(path,encoding="utf-8") as f:
-            for line in f:
+            for line_no,line in enumerate(f,1):
                 ids=tokenizer.encode(json.loads(line)["text"],out_type=int)
                 for start in range(0,max(0,len(ids)-1),seq_len):
                     chunk=ids[start:start+seq_len+1]
@@ -41,7 +41,16 @@ def main():
     cfg=ModelConfig.from_dict(raw); tc=raw.get("training",{})
     seed=int(tc.get("seed",42)); random.seed(seed); torch.manual_seed(seed)
     tok=spm.SentencePieceProcessor(model_file=a.tokenizer)
+    if tok.get_piece_size() != cfg.vocab_size:
+        raise ValueError(
+            f"Tokenizer vocabulary ({tok.get_piece_size()}) does not match "
+            f"model config ({cfg.vocab_size})"
+        )
     seq=min(int(tc.get("sequence_length",512)),cfg.max_seq_len)
+    if seq < 1 or int(tc.get("batch_size",1)) < 1:
+        raise ValueError("sequence_length and batch_size must be positive")
+    if int(tc.get("max_steps",1000)) < 1:
+        raise ValueError("max_steps must be positive")
     ds=TextDataset(a.data,tok,seq)
     loader=DataLoader(ds,batch_size=int(tc.get("batch_size",1)),shuffle=True,
                       num_workers=int(tc.get("num_workers",0)))
