@@ -92,6 +92,11 @@ def main():
     torch.manual_seed(seed)
 
     tokenizer = spm.SentencePieceProcessor(model_file=args.tokenizer)
+    if tokenizer.get_piece_size() != config.vocab_size:
+        raise ValueError(
+            f"Tokenizer vocabulary ({tokenizer.get_piece_size()}) does not match "
+            f"model config ({config.vocab_size}); set model.vocab_size to the tokenizer size"
+        )
     max_length = min(int(train.get("sequence_length", 512)), config.max_seq_len)
     dataset = ConversationDataset(args.data, tokenizer, max_length)
     loader = DataLoader(dataset, batch_size=int(train.get("batch_size", 1)),
