@@ -63,7 +63,7 @@ def split_records(input_path, output_dir):
             split = assigned[document_id]
             for row in rows:
                 row["split"] = split
-                handles[split].write(json.dumps(row, ensure_ascii=False) + "\\n")
+                handles[split].write(json.dumps(row, ensure_ascii=False) + "\n")
                 counts[split] += 1
     finally:
         for handle in handles.values():
