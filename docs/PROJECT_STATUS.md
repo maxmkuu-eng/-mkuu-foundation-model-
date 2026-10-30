@@ -6,13 +6,22 @@
 - SentencePiece tokenizer training script.
 - JSONL data validation, normalization and exact-text deduplication.
 - A basic autoregressive training loop with gradient accumulation and checkpoint saving/resume.
+- Conversational behaviour specification in `docs/BEHAVIOUR_SPEC.md` and intended behaviour settings in `configs/behaviour.yaml`.
 - Small unit tests and a GitHub Actions CPU test workflow.
 
 ## Dataset preparation progress
-- Added an initial 12-language coverage plan in `data/languages.yaml`.
+- An initial 12-language planning list exists in `data/languages.yaml`; this is not a fixed limit. The long-term target is worldwide multilingual support, with deliberate priority for African languages.
 - Added source licensing/provenance admission rules in `data/SOURCES.md` and raw intake instructions in `data/RAW_DATA_README.md`.
 - Fixed newline output in the JSONL-to-text export script.
 - No corpus has yet been collected, license-reviewed or approved; no source should be treated as admitted.
+
+## Conversational behaviour targets
+- Broad, open-topic discussion without unnecessary refusals or moralising; proportionate safeguards remain for requests that would facilitate real-world harm.
+- Natural Tanzanian Kiswahili, including standard usage, mtaani slang, idioms, shorthand and Swanglish.
+- Warm, playful, witty conversation and friendly humour, without forcing jokes into every answer.
+- Tone adaptation: serious and careful when the situation calls for it.
+- Multilingual conversational registers, humour and cultural context should be learned and evaluated separately for each language.
+- These are specifications for future training and evaluation, not capabilities already demonstrated by the untrained model.
 
 ## What does not exist yet
 - No trained tokenizer model.
