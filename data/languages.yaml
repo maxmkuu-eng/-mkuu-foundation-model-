@@ -1,0 +1,16 @@
+# Initial language coverage plan for MKUU Foundation Model.
+# This is a target list, not a claim that training data has been collected.
+# Prioritize balanced, licensed data; never fill quotas with unlicensed text.
+languages:
+  - {code: sw, name: Kiswahili, priority: 1}
+  - {code: en, name: English, priority: 1}
+  - {code: ha, name: Hausa, priority: 1}
+  - {code: yo, name: Yoruba, priority: 2}
+  - {code: ig, name: Igbo, priority: 2}
+  - {code: am, name: Amharic, priority: 2}
+  - {code: om, name: Oromo, priority: 3}
+  - {code: so, name: Somali, priority: 2}
+  - {code: zu, name: isiZulu, priority: 2}
+  - {code: xh, name: isiXhosa, priority: 3}
+  - {code: rw, name: Kinyarwanda, priority: 2}
+  - {code: lg, name: Luganda, priority: 3}
