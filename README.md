@@ -38,6 +38,17 @@ Training requires a trained tokenizer and a prepared dataset:
 python training/pretrain.py --config configs/model_300m.yaml --data data/processed/train.jsonl --tokenizer artifacts/mkuu_spm.model
 ```
 
+## Tokenizer and conversational fine-tuning
+Build tokenizer text from approved train-split JSONL records (text or role-labelled conversations):
+```bash
+python data/build_tokenizer_corpus.py --input data/approved/train.jsonl data/behaviour_seed.jsonl --output data/processed/tokenizer_train.txt
+python tokenizer/train_tokenizer.py --input data/processed/tokenizer_train.txt --model-prefix artifacts/mkuu_spm --vocab-size 48000
+```
+Use the actual vocabulary size printed by SentencePiece in the model config. See `tokenizer/TOKENIZER_DATA_README.md`. A tiny smoke-test model config is provided at `configs/model_tiny_smoke.yaml`; it is for pipeline checks only, not quality training.
+
+## Voice / speech
+The intended speech architecture is documented in `speech/SPEECH_SPEC.md` and `configs/speech.yaml`. It requires a speech-to-text component for listening and text-to-speech for spoken replies. These are design targets only; no audio runtime or working voice capability is included yet.
+
 ## Data rules
 Follow `data/SOURCES.md` and `data/RAW_DATA_README.md` for source admission and intake. Every source must have documented provenance and license/permission. Keep personal or sensitive information out. Deduplicate, filter low-quality text, retain language metadata, and reserve a held-out evaluation split. Never assume that publicly accessible means licensed for training.
 
