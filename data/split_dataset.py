@@ -50,9 +50,17 @@ def split_records(input_path, output_dir):
     # Avoid silently producing an empty held-out split for small corpora.
     missing_splits = [name for name in SPLITS if name not in assigned.values()]
     if missing_splits:
-        ordered = sorted(groups, key=lambda key: hashlib.sha256(key.encode("utf-8")).hexdigest())
-        for name, key in zip(missing_splits, ordered):
-            assigned[key] = name
+        # Move one group at a time from the currently largest split, never
+        # emptying an existing split while reserving a held-out partition.
+        for name in missing_splits:
+            counts = Counter(assigned.values())
+            donors = [split for split, count in counts.items() if count > 1]
+            if not donors:
+                raise ValueError("Cannot create non-empty train/validation/test splits from these groups")
+            donor = max(donors, key=lambda split: counts[split])
+            candidates = [key for key, split in assigned.items() if split == donor]
+            chosen = min(candidates, key=lambda key: hashlib.sha256(key.encode("utf-8")).hexdigest())
+            assigned[chosen] = name
 
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)
