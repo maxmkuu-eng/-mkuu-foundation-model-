@@ -4,36 +4,41 @@ speech:
   budget: free_and_open_source_only
   input:
     required: true
-    tasks:
-      - speech_to_text
-      - language_identification
-      - punctuation
-      - sw_tz_slang_and_swanglish_transcription
-      - regional_accent_evaluation
     status: not_implemented
   output:
     required: true
-    engine: espeak-ng
-    adapter: speech/tts_espeak.py
-    language_voice: sw
-    default_speed_words_per_minute: 155
-    tasks:
-      - text_to_speech
-      - swahili_speech_synthesis
-      - adjustable_speaking_rate
-      - wav_file_output
-      - direct_host_playback
-    status: implemented_baseline_requires_espeak_ng
-    quality_note: synthetic_voice_not_yet_validated_for_tanzanian_pronunciation
+    preferred_mode: online
+    online:
+      adapter: speech/tts_online.py
+      provider: tts.ai
+      endpoint: https://api.tts.ai/v1
+      model: piper
+      voice: Lanfrica
+      language: sw
+      format: mp3
+      anonymous_free_limit:
+        characters_per_day: 5000
+        characters_per_request: 500
+        requests_per_minute: 10
+      voice_license: non_commercial_only
+      requires_explicit_license_acknowledgement: true
+      api_key_environment_variable: TTS_AI_API_KEY
+      status: adapter_implemented_provider_voice_license_restricted
+    offline_fallback:
+      adapter: speech/tts_espeak.py
+      engine: espeak-ng
+      language_voice: sw
+      status: implemented_baseline_requires_espeak_ng
+    quality_note: provider voice requires Tanzanian native-speaker evaluation
   privacy:
     explicit_microphone_permission: true
     recording_indicator: true
     retain_raw_audio_by_default: false
   provider_policy:
-    paid_api_dependencies: false
-    provider_neutral_interfaces: true
-    require_license_review: true
+    no_paid_api_dependency: true
+    never_commit_api_keys: true
+    require_voice_license_review: true
   platform_limitations:
-    python_adapter_requires_espeak_ng_cli: true
     android_app_integration: not_implemented
-  status: partial_tts_implemented_asr_pending
+    automatic_chat_reply_playback: not_implemented
+  status: online_tts_adapter_added_integration_pending
