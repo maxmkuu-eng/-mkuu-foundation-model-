@@ -1,0 +1,19 @@
+model:
+  vocab_size: 48000
+  d_model: 1024
+  n_layers: 16
+  n_heads: 16
+  ffn_hidden_size: 2816
+  max_seq_len: 2048
+  dropout: 0.0
+  tie_embeddings: false
+  rope_theta: 10000.0
+
+training:
+  seed: 42
+  sequence_length: 512
+  batch_size: 1
+  learning_rate: 0.00002
+  weight_decay: 0.01
+  max_steps: 100
+  save_every: 50
