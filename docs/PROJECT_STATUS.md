@@ -7,6 +7,7 @@
 - JSONL data validation, normalization and exact-text deduplication.
 - A basic autoregressive training loop with gradient accumulation and checkpoint saving/resume.
 - Conversational behaviour specification in `docs/BEHAVIOUR_SPEC.md` and intended behaviour settings in `configs/behaviour.yaml`.
+- Eight original synthetic Tanzanian Kiswahili dialogue examples in `data/behaviour_seed.jsonl`, with usage and licensing notes in `data/BEHAVIOUR_DATA_README.md`.
 - Small unit tests and a GitHub Actions CPU test workflow.
 
 ## Dataset preparation progress
