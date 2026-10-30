@@ -51,8 +51,8 @@ def main():
         with seed.open(encoding="utf-8") as src, pretrain_data.open("w", encoding="utf-8") as dst:
             for line in src:
                 row = json.loads(line)
-                text = "\\n".join(m["content"] for m in row["messages"])
-                dst.write(json.dumps({"text": text}, ensure_ascii=False) + "\\n")
+                text = chr(10).join(m["content"] for m in row["messages"])
+                dst.write(json.dumps({"text": text}, ensure_ascii=False) + chr(10))
 
         config = {
             "model": {
