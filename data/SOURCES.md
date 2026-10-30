@@ -20,7 +20,7 @@ If training rights are unclear, mark the source **pending** and do not ingest it
 
 | Dataset/source | Languages | Version | License / permission evidence | Training allowed? | Decision |
 |---|---|---|---|---|---|
-| Not yet reviewed | — | — | — | Unknown | Pending |
+| Mozilla Common Voice Scripted Speech 25.0 — Swahili (`sw`, including `sw-baratz`) | Kiswahili; Tanzania variety identified in release metadata | 25.0 (2026-03-09) | CC0-1.0 reported in release datasheet; [Mozilla Data Collective](https://datacollective.mozillafoundation.org/datasets/cmn3ailbd008nmb07mjyu3xro) | Likely yes under CC0; verify the exact downloaded release terms and attribution/privacy notes | Pending intake and release verification |
 
 ## Record format
 
@@ -38,3 +38,13 @@ See [languages.yaml](languages.yaml). The list is a coverage plan, not evidence 
 ## Splits and quality
 
 Keep train, validation and test splits separate by document/source where possible to reduce leakage. Deduplicate exact and near-duplicate text, detect language, filter boilerplate and malformed text, and measure token counts per language. Preserve provenance through every transformation.
+
+## Candidate research note (not yet admitted)
+
+Mozilla Common Voice's Swahili 25.0 release metadata reports CC0-1.0 and
+identifies a Tanzanian mainland variety (`sw-baratz`) with 22,486 clips.
+This is a speech/transcription corpus, not a conversational text corpus. It
+may provide useful Tanzanian sentence text for base-language exposure after
+the release is downloaded and its exact terms, text fields, quality, duplicates
+and privacy requirements are checked. Do not treat this candidate as approved
+or mix it into conversational SFT data. See the [release datasheet](https://test-proxy.konza.go.ke/items/28fba537-6452-4676-a1cc-7430cfb82964).
