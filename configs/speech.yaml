@@ -1,0 +1,28 @@
+speech:
+  enabled_by_default: false
+  architecture: modular_asr_plus_text_model_plus_tts
+  budget: free_and_open_source_only
+  input:
+    required: true
+    tasks:
+      - speech_to_text
+      - language_identification
+      - punctuation
+      - sw_tz_slang_and_swanglish_transcription
+      - regional_accent_evaluation
+  output:
+    required: true
+    tasks:
+      - text_to_speech
+      - natural_tanzanian_kiswahili_pronunciation
+      - adjustable_speaking_rate
+      - interruptible_playback
+  privacy:
+    explicit_microphone_permission: true
+    recording_indicator: true
+    retain_raw_audio_by_default: false
+  provider_policy:
+    paid_api_dependencies: false
+    provider_neutral_interfaces: true
+    require_license_review: true
+  status: design_only_not_implemented
