@@ -95,7 +95,7 @@ def test_pretraining_rejects_pending_license_records(tmp_path):
             "license": "PENDING-REVIEW",
             "license_status": "pending",
             "source": "sw-corpus",
-        }) + "\\n",
+        }) + "\n",
         encoding="utf-8",
     )
 
