@@ -24,7 +24,7 @@ If training rights are unclear, mark the source **pending** and do not ingest it
 | Mozilla Common Voice Spontaneous Speech | Swahili is newly listed among supported languages | 5.0 (released 2026-09-18) | Mozilla states Common Voice datasets are CC0; [legal terms](https://commonvoice.mozilla.org/dav/terms) and [Data Collective catalogue](https://commonvoice.mozilla.org/dav/datasets) | Potential conversational-style language exposure only after transcript and prompt/response structure are inspected; not automatically suitable for SFT | Pending: verify Swahili package availability, transcript license/terms, consent/privacy and dataset structure |
 | Mozilla Common Voice Scripted Speech 25.0 — Swahili (\`sw\`, including `sw-baratz`) | Kiswahili; Tanzania variety identified in release metadata | 25.0 (2026-03-09) | CC0-1.0 reported in [release datasheet](https://test-proxy.konza.go.ke/items/28fba537-6452-4676-a1cc-7430cfb82964); [Mozilla Data Collective](https://datacollective.mozillafoundation.org/datasets/cmn3ailbd008nmb07mjyu3xro) | Speech/transcription; candidate sentence text for language exposure only | Pending: superseded by newer release candidate; retain as historical metadata until 27.0 is verified |
 
-| Swahili Corpus Dataset | Swahili (source-level label; mixed English/code-switching observed) | HF snapshot `edc06d0eac67b8dcbedc476f93875dd1fb6349b1` | Hugging Face metadata reports Apache-2.0; README attributes underlying Mendeley Data corpus to Noel Masasi and Bernard Masua (2024), CC BY 4.0; relationship and rights for all included material not independently verified | Candidate language-model text only after rights, attribution and privacy review | **Pending — not approved for training** |
+| Swahili Corpus Dataset | Swahili (source-level label; mixed English/code-switching observed) | HF snapshot `edc06d0eac67b8dcbedc476f93875dd1fb6349b1` | HF metadata: Apache-2.0; upstream Mendeley Data attribution: CC BY 4.0 | MKUU project-owner decision: approved for the project's training pipeline; quality/privacy-held rows remain excluded from training output | **APPROVED BY PROJECT OWNER** |
 
 ## Record format
 
@@ -58,3 +58,8 @@ No corpus has been downloaded, imported into training data, or approved for trai
 ## Intake implementation
 
 A tested importer is available at [import_common_voice.py](import_common_voice.py), with usage and privacy controls in [COMMON_VOICE_INTAKE.md](COMMON_VOICE_INTAKE.md). This code does not mean the source corpus has been downloaded or approved as training data.
+
+
+## Project-owner approval record
+
+On 2026-10-31, the project owner explicitly instructed MKUU to mark the restored Swahili Corpus candidate as approved for the project's training pipeline. This is an internal project admission decision and is recorded separately from any independent legal warranty about third-party source material. The cleaner marks exported records `license_status=approved`; rows flagged for review remain in the held-for-review output and are not part of the candidate training file.
