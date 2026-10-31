@@ -65,6 +65,38 @@ jobs:
             --license CC-BY-4.0 \
             --max-chars 5000
 
+      - name: Install tokenizer dependency
+        run: python -m pip install "sentencepiece>=0.2.0"
+
+      - name: Validate corpus and create leakage-safe splits
+        run: |
+          python data/split_dataset.py --input output/swahili_candidate_v2.jsonl --output-dir output/splits
+
+      - name: Build tokenizer training text from train split only
+        run: |
+          python data/build_tokenizer_corpus.py --input output/splits/train.jsonl --output output/tokenizer_train.txt
+
+      - name: Train MKUU SentencePiece tokenizer
+        run: |
+          python tokenizer/train_tokenizer.py --input output/tokenizer_train.txt --model-prefix output/mkuu_swahili_spm --vocab-size 48000
+
+      - name: Validate tokenizer vocabulary and record counts
+        run: |
+          python - <<'PY'
+          import json, sentencepiece as spm
+          from pathlib import Path
+          root = Path("output")
+          counts = {}
+          for split in ("train", "validation", "test"):
+              p = root / "splits" / f"{split}.jsonl"
+              with p.open(encoding="utf-8") as f:
+                  counts[split] = sum(1 for line in f if line.strip())
+          tok = spm.SentencePieceProcessor(model_file=str(root / "mkuu_swahili_spm.model"))
+          if tok.get_piece_size() < 1000:
+              raise SystemExit(f"Unexpectedly small tokenizer vocabulary: {tok.get_piece_size()}")
+          print(json.dumps({"split_counts": counts, "tokenizer_vocab_size": tok.get_piece_size()}, indent=2))
+          PY
+
       - name: Write reproducibility manifest
         run: |
           python - <<'PY'
@@ -80,9 +112,18 @@ jobs:
               "training_approved": True,
               "python": sys.version,
               "platform": platform.platform(),
-              "outputs": {}
+              "split_counts": {},\n              "tokenizer_vocab_size": 0,\n              "outputs": {}
           }
-          for name in ("swahili_candidate_v2.jsonl", "held_for_review_v2.jsonl"):
+          for split in ("train", "validation", "test"):
+              p = root / "splits" / f"{split}.jsonl"
+              with p.open(encoding="utf-8") as f:
+                  manifest["split_counts"][split] = sum(1 for line in f if line.strip())
+          import sentencepiece as spm
+          manifest["tokenizer_vocab_size"] = spm.SentencePieceProcessor(
+              model_file=str(root / "mkuu_swahili_spm.model")).get_piece_size()
+          for name in ("swahili_candidate_v2.jsonl", "held_for_review_v2.jsonl",
+                       "splits/train.jsonl", "splits/validation.jsonl", "splits/test.jsonl",
+                       "tokenizer_train.txt", "mkuu_swahili_spm.model", "mkuu_swahili_spm.vocab"):
               p = root / name
               h = hashlib.sha256()
               with p.open("rb") as f:
