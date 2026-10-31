@@ -39,7 +39,7 @@ def clean_corpus(input_path, output_path, review_path, *, source, version,
     stats = {
         "source_lines": 0, "candidate_rows": 0, "duplicates": 0,
         "empty_or_too_short": 0, "held_long": 0, "held_xml": 0,
-        "pii_flagged": 0, "repeated_token_flagged": 0,
+        "pii_flagged": 0, "repeated_token_flagged": 0, "review_rows": 0,
     }
 
     with open(input_path, encoding="utf-8-sig") as src, \
@@ -86,13 +86,13 @@ def clean_corpus(input_path, output_path, review_path, *, source, version,
                 "quality_flags": (["REPEATED_TOKEN_PATTERN"] if repeated else []),
             }
             if reasons:
+                stats["review_rows"] += 1
                 record["review_reasons"] = reasons
                 held.write(json.dumps(record, ensure_ascii=False) + "\n")
             else:
                 dst.write(json.dumps(record, ensure_ascii=False) + "\n")
                 stats["candidate_rows"] += 1
 
-    stats["review_rows"] = stats["held_long"] + stats["held_xml"]
     stats["candidate_file"] = str(output)
     stats["review_file"] = str(review)
     return stats
