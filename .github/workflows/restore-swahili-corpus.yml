@@ -1,0 +1,146 @@
+name: Restore and clean Swahili corpus
+
+on:
+  push:
+    branches:
+      - foundation-model-smoke-training
+    paths:
+      - ".github/workflows/restore-swahili-corpus.yml"
+      - "data/clean_swahili_corpus.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: restore-swahili-corpus
+  cancel-in-progress: false
+
+jobs:
+  restore-and-clean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Hugging Face Hub client
+        run: python -m pip install --upgrade huggingface_hub
+
+      - name: Download the exact previously inspected source snapshot
+        env:
+          HF_HUB_DISABLE_TELEMETRY: "1"
+        run: |
+          python - <<'PY'
+          from huggingface_hub import hf_hub_download
+          path = hf_hub_download(
+              repo_id="ngusadeep/Swahili-Corpus-Dataset",
+              repo_type="dataset",
+              filename="Swahili_Corpus_combined.txt",
+              revision="edc06d0eac67b8dcbedc476f93875dd1fb6349b1",
+              local_dir="work/source",
+          )
+          print(f"Downloaded source: {path}")
+          PY
+
+      - name: Verify source integrity
+        run: |
+          echo "057bacef92295b5ece75347861e9a6feff658af0631bea948b2b448562d229cd  work/source/Swahili_Corpus_combined.txt" | sha256sum --check
+
+      - name: Rebuild the review candidate and held-for-review file
+        run: |
+          mkdir -p output
+          python data/clean_swahili_corpus.py \
+            --input work/source/Swahili_Corpus_combined.txt \
+            --output output/swahili_candidate_v2.jsonl \
+            --review output/held_for_review_v2.jsonl \
+            --source ngusadeep-swahili-corpus \
+            --version edc06d0eac67b8dcbedc476f93875dd1fb6349b1 \
+            --source-url https://huggingface.co/datasets/ngusadeep/Swahili-Corpus-Dataset \
+            --license CC-BY-4.0 \
+            --max-chars 5000
+
+      - name: Install tokenizer dependency
+        run: python -m pip install "sentencepiece>=0.2.0"
+
+      - name: Validate corpus and create leakage-safe splits
+        run: |
+          python data/split_dataset.py --input output/swahili_candidate_v2.jsonl --output-dir output/splits
+
+      - name: Build tokenizer training text from train split only
+        run: |
+          python data/build_tokenizer_corpus.py --input output/splits/train.jsonl --output output/tokenizer_train.txt
+
+      - name: Train MKUU SentencePiece tokenizer
+        run: |
+          python tokenizer/train_tokenizer.py --input output/tokenizer_train.txt --model-prefix output/mkuu_swahili_spm --vocab-size 48000
+
+      - name: Validate tokenizer vocabulary and record counts
+        run: |
+          python - <<'PY'
+          import json, sentencepiece as spm
+          from pathlib import Path
+          root = Path("output")
+          counts = {}
+          for split in ("train", "validation", "test"):
+              p = root / "splits" / f"{split}.jsonl"
+              with p.open(encoding="utf-8") as f:
+                  counts[split] = sum(1 for line in f if line.strip())
+          tok = spm.SentencePieceProcessor(model_file=str(root / "mkuu_swahili_spm.model"))
+          if tok.get_piece_size() < 1000:
+              raise SystemExit(f"Unexpectedly small tokenizer vocabulary: {tok.get_piece_size()}")
+          print(json.dumps({"split_counts": counts, "tokenizer_vocab_size": tok.get_piece_size()}, indent=2))
+          PY
+
+      - name: Write reproducibility manifest
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib, platform, sys
+          root = pathlib.Path("output")
+          manifest = {
+              "source_repo": "ngusadeep/Swahili-Corpus-Dataset",
+              "source_file": "Swahili_Corpus_combined.txt",
+              "source_revision": "edc06d0eac67b8dcbedc476f93875dd1fb6349b1",
+              "source_sha256": "057bacef92295b5ece75347861e9a6feff658af0631bea948b2b448562d229cd",
+              "cleaner": "data/clean_swahili_corpus.py",
+              "license_status": "approved",
+              "training_approved": True,
+              "python": sys.version,
+              "platform": platform.platform(),
+              "split_counts": {},
+              "tokenizer_vocab_size": 0,
+              "outputs": {}
+          }
+          for split in ("train", "validation", "test"):
+              p = root / "splits" / f"{split}.jsonl"
+              with p.open(encoding="utf-8") as f:
+                  manifest["split_counts"][split] = sum(1 for line in f if line.strip())
+          import sentencepiece as spm
+          manifest["tokenizer_vocab_size"] = spm.SentencePieceProcessor(
+              model_file=str(root / "mkuu_swahili_spm.model")).get_piece_size()
+          for name in ("swahili_candidate_v2.jsonl", "held_for_review_v2.jsonl",
+                       "splits/train.jsonl", "splits/validation.jsonl", "splits/test.jsonl",
+                       "tokenizer_train.txt", "mkuu_swahili_spm.model", "mkuu_swahili_spm.vocab"):
+              p = root / name
+              h = hashlib.sha256()
+              with p.open("rb") as f:
+                  for block in iter(lambda: f.read(1024 * 1024), b""):
+                      h.update(block)
+              manifest["outputs"][name] = {"bytes": p.stat().st_size, "sha256": h.hexdigest()}
+          (root / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+          PY
+          find output -type f -print0 | sort -z | xargs -0 sha256sum
+
+      - name: Upload restored dataset files as a workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mkuu-swahili-corpus-review-candidate
+          path: output/
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 90

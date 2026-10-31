@@ -28,10 +28,30 @@ Train a SentencePiece tokenizer only on text you are permitted to use:
 python tokenizer/train_tokenizer.py --input data/processed/train.txt --model-prefix artifacts/mkuu_spm --vocab-size 48000
 ```
 
+Split a reviewed corpus by document (deterministic 80/10/10 target; all records
+from one document stay together). Each row must include `document_id`:
+```bash
+python data/split_dataset.py --input data/processed/all.jsonl --output-dir data/approved
+```
+This writes `train.jsonl`, `validation.jsonl` and `test.jsonl`. The splitter
+rejects missing provenance and exact duplicate text. Review split counts and
+source balance before training; the ratios are targets, not a quality guarantee.
+
 Prepare licensed JSONL records:
 ```bash
 python data/prepare_jsonl.py --input data/raw/input.jsonl --output data/processed/train.jsonl
 ```
+
+Generate locally from a trained checkpoint (no hosted model/API):
+```bash
+python scripts/generate.py --checkpoint checkpoints/sft/last.pt --tokenizer artifacts/mkuu_spm.model --prompt "Habari, unaweza kujitambulisha?"
+```
+
+Evaluate only on a separately held-out, provenance-labelled split:
+```bash
+python scripts/evaluate.py --checkpoint checkpoints/pretrain/last.pt --tokenizer artifacts/mkuu_spm.model --data data/approved/test.jsonl --split test
+```
+Each evaluation record must include `text`, `license`, `source`, and `split=test`. The script reports token-weighted cross-entropy and perplexity; these metrics do not replace human evaluation.
 
 Training requires a trained tokenizer and a prepared dataset:
 ```bash
@@ -58,7 +78,7 @@ python -m speech.tts_espeak "Habari, karibu MKUU AI." --output artifacts/mkuu_re
 The default voice is eSpeak NG's `sw` Swahili voice. It is synthetic and can sound robotic; Tanzanian native-speaker evaluation and a more natural voice are future work. The Python adapter does not yet add microphone input or integrate playback controls into the separate Android app. See `speech/SPEECH_SPEC.md`.
 
 ## Data rules
-Follow `data/SOURCES.md` and `data/RAW_DATA_README.md` for source admission and intake. Every source must have documented provenance and license/permission. Keep personal or sensitive information out. Deduplicate, filter low-quality text, retain language metadata, and reserve a held-out evaluation split. Never assume that publicly accessible means licensed for training.
+Follow `data/SOURCES.md` and `data/RAW_DATA_README.md` for source admission and intake. For the inspected Swahili text source, see `data/SWAHILI_CORPUS_CLEANING.md` and run `data/clean_swahili_corpus.py`; its output is marked project-owner approved by the corpus workflow. Review-held rows remain excluded. The restore workflow creates deterministic document-level train/validation/test splits and a SentencePiece tokenizer artifact. Every source must have documented provenance and license/permission. Keep personal or sensitive information out. Deduplicate, filter low-quality text, retain language metadata, and reserve a held-out evaluation split. Never assume that publicly accessible means licensed for training.
 
 ## Repository policy
 Do not commit large datasets, credentials, API keys, or model checkpoints. Store checkpoints only in a permitted storage location and document their provenance.
@@ -70,3 +90,8 @@ Decoder-only Transformer, RMSNorm, rotary position embeddings, causal scaled-dot
 ## Online speech output (TTS)
 
 An online adapter for TTS.ai is available in `speech/tts_online.py`. It submits text, waits for the generated audio and saves an MP3. Run `python -m speech.tts_online --list-voices` to inspect the provider's current Swahili voice catalogue. The provider documents an anonymous free allowance of 5,000 characters/day, up to 500 characters per request. The configured Swahili Piper voice `Lanfrica` is marked **non-commercial only** by the provider; the adapter requires an explicit acknowledgement and it must not be enabled in a commercial MKUU release. This is a test integration, not unlimited hosting. See `speech/SPEECH_SPEC.md` and `configs/speech.yaml`. The separate Android app is not yet connected to this adapter; this repository has no deployed chat backend or Android playback UI.
+
+
+## Common Voice intake
+
+See [data/COMMON_VOICE_INTAKE.md](data/COMMON_VOICE_INTAKE.md) for the tested TSV importer, privacy filtering, provenance fields and safe local intake workflow. No raw dataset is committed.

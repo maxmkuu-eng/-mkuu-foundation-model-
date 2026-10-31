@@ -20,5 +20,7 @@ jobs:
           pip install -r requirements.txt
       - name: Run unit tests
         run: pytest -q
+      - name: Run end-to-end CPU training smoke test
+        run: python scripts/smoke_train.py
       - name: Report configured parameter count
         run: python scripts/print_model_size.py --config configs/model_300m.yaml

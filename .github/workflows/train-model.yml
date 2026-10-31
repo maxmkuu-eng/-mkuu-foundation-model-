@@ -1,0 +1,65 @@
+name: MKUU licensed-data training
+
+on:
+  workflow_dispatch:
+    inputs:
+      pretraining_data_url:
+        description: HTTPS URL to a reviewed JSONL corpus (text, language, license, source, document_id)
+        required: true
+        type: string
+      sft_data_url:
+        description: Optional HTTPS URL to a separately licensed role-labelled conversation JSONL corpus
+        required: false
+        type: string
+      pretrain_steps:
+        description: Pretraining optimizer steps
+        required: true
+        default: "1000"
+        type: string
+      sft_steps:
+        description: SFT optimizer steps (used only when SFT data URL is supplied)
+        required: true
+        default: "100"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  train:
+    # Attach a GPU-enabled self-hosted runner to the repository before running
+    # this workflow. GitHub-hosted free runners are CPU-only and unsuitable for 300M.
+    runs-on: [self-hosted, linux, x64, gpu]
+    timeout-minutes: 1440
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Download supplied corpora
+        env:
+          PRETRAIN_URL: ${{ inputs.pretraining_data_url }}
+          SFT_URL: ${{ inputs.sft_data_url }}
+        run: |
+          mkdir -p data/raw
+          curl --fail --location --retry 3 --max-time 3600 "$PRETRAIN_URL" -o data/raw/pretraining.jsonl
+          if [ -n "$SFT_URL" ]; then
+            curl --fail --location --retry 3 --max-time 3600 "$SFT_URL" -o data/raw/sft.jsonl
+          fi
+      - name: Run licensed-data training pipeline
+        run: |
+          args=(--corpus data/raw/pretraining.jsonl --pretrain-steps "${{ inputs.pretrain_steps }}" --sft-steps "${{ inputs.sft_steps }}" --output artifacts/training-run)
+          if [ -s data/raw/sft.jsonl ]; then args+=(--sft-corpus data/raw/sft.jsonl); fi
+          python scripts/train_pipeline.py "${args[@]}"
+      - name: Upload tokenizer, checkpoints and evaluation inputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mkuu-foundation-training-${{ github.run_id }}
+          path: artifacts/training-run/
+          if-no-files-found: warn
+          retention-days: 30

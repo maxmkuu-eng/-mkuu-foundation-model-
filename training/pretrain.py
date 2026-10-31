@@ -1,5 +1,10 @@
-import argparse, json, math, random
+import argparse, json, math, random, sys
 from pathlib import Path
+
+# Make the repository root importable when this file is run by path in CI.
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 import sentencepiece as spm
 import torch, yaml
 from torch.utils.data import Dataset, DataLoader
@@ -10,8 +15,21 @@ class TextDataset(Dataset):
         self.rows=[]
         self.seq_len=seq_len
         with open(path,encoding="utf-8") as f:
-            for line in f:
-                ids=tokenizer.encode(json.loads(line)["text"],out_type=int)
+            for line_no,line in enumerate(f,1):
+                if not line.strip():
+                    continue
+                row=json.loads(line)
+                if not row.get("license") or not row.get("source"):
+                    raise ValueError(f"Line {line_no}: license and source provenance are required")
+                if row.get("license_status", "approved") != "approved":
+                    raise ValueError(
+                        f"Line {line_no}: source license status is not approved; "
+                        "pending-review data cannot be used for pretraining"
+                    )
+                text=row.get("text")
+                if not isinstance(text,str) or not text.strip():
+                    raise ValueError(f"Line {line_no}: text must be non-empty")
+                ids=tokenizer.encode(text,out_type=int)
                 for start in range(0,max(0,len(ids)-1),seq_len):
                     chunk=ids[start:start+seq_len+1]
                     if len(chunk)>1:
@@ -41,7 +59,16 @@ def main():
     cfg=ModelConfig.from_dict(raw); tc=raw.get("training",{})
     seed=int(tc.get("seed",42)); random.seed(seed); torch.manual_seed(seed)
     tok=spm.SentencePieceProcessor(model_file=a.tokenizer)
+    if tok.get_piece_size() != cfg.vocab_size:
+        raise ValueError(
+            f"Tokenizer vocabulary ({tok.get_piece_size()}) does not match "
+            f"model config ({cfg.vocab_size})"
+        )
     seq=min(int(tc.get("sequence_length",512)),cfg.max_seq_len)
+    if seq < 1 or int(tc.get("batch_size",1)) < 1:
+        raise ValueError("sequence_length and batch_size must be positive")
+    if int(tc.get("max_steps",1000)) < 1:
+        raise ValueError("max_steps must be positive")
     ds=TextDataset(a.data,tok,seq)
     loader=DataLoader(ds,batch_size=int(tc.get("batch_size",1)),shuffle=True,
                       num_workers=int(tc.get("num_workers",0)))

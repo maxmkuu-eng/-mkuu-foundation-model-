@@ -10,11 +10,14 @@
 - Eight original synthetic Tanzanian Kiswahili dialogue examples in `data/behaviour_seed.jsonl`, with usage and licensing notes in `data/BEHAVIOUR_DATA_README.md`.
 - Initial supervised conversation fine-tuning script in `training/sft.py`, with `configs/sft_300m.yaml` and usage/limitations in `training/SFT_README.md`.
 - Tokenizer corpus builder in `data/build_tokenizer_corpus.py`; SentencePiece training now registers chat role markers and reports the actual vocabulary size.
+- Deterministic document-grouped train/validation/test splitter in `data/split_dataset.py`, with provenance requirements and exact-duplicate rejection; covered by dedicated tests.
 - Tiny 128-hidden, 2-layer smoke-test config in `configs/model_tiny_smoke.yaml`.
 - Offline Swahili TTS adapter in `speech/tts_espeak.py`, using the system eSpeak NG executable to play speech or write WAV files.
 - Speech input/output design and integration targets in `speech/SPEECH_SPEC.md` and `configs/speech.yaml`.
 - SFT masks system/user prompt tokens and computes loss on assistant response tokens only; seed examples include explicit synthetic provenance.
-- Small unit tests and a GitHub Actions CPU test workflow.
+- Small unit tests and a GitHub Actions CPU test workflow, including an end-to-end tokenizer/pretraining/SFT/inference smoke test.
+- Local autoregressive inference CLI in `scripts/generate.py`; it loads checkpoint weights and tokenizer without a hosted model/API.
+- Held-out JSONL evaluation CLI in `scripts/evaluate.py`; it requires explicit validation/test split and provenance, then reports token-weighted loss and perplexity.
 
 ## Dataset preparation progress
 - An initial 12-language planning list exists in `data/languages.yaml`; this is not a fixed limit. The long-term target is worldwide multilingual support, with deliberate priority for African languages.
@@ -42,7 +45,7 @@
 - No completed pretraining run.
 - No Android APK or on-device inference runtime.
 - No ASR model or speech checkpoints; microphone capture and Android app integration remain unimplemented.
-- The SFT pipeline has been added but has not yet been executed end-to-end; it still needs a compatible tokenizer and base checkpoint. No measured SFT quality report exists.
+- The SFT pipeline has now been executed in the temporary CPU smoke test using a temporary tokenizer and tiny base checkpoint; this proves code-path execution only. No measured SFT quality report exists.
 
 ## Parameter target
 The configured dimensions imply approximately 304M parameters with untied token embeddings and output projection. Run the parameter-count script and record its actual output before treating the count as verified.
