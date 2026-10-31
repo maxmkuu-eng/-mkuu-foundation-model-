@@ -83,3 +83,26 @@ def test_cleaner_keeps_provenance_and_marks_license_pending(tmp_path):
     assert row["document_id"] == "sw-corpus:snapshot-1:line-1"
     assert row["license"] == "PENDING-REVIEW"
     assert row["license_status"] == "pending"
+
+
+def test_pretraining_rejects_pending_license_records(tmp_path):
+    from training.pretrain import TextDataset
+
+    source = tmp_path / "pending.jsonl"
+    source.write_text(
+        json.dumps({
+            "text": "Hii ni sentensi ya Kiswahili ya kutosha.",
+            "license": "PENDING-REVIEW",
+            "license_status": "pending",
+            "source": "sw-corpus",
+        }) + "\\n",
+        encoding="utf-8",
+    )
+
+    class FakeTokenizer:
+        def encode(self, text, out_type=int):
+            return [2, 10, 11, 12]
+
+    import pytest
+    with pytest.raises(ValueError, match="license status is not approved"):
+        TextDataset(source, FakeTokenizer(), 8)
