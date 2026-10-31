@@ -139,12 +139,12 @@ class MainActivity : Activity() {
                         }
                         appendTranscript("VYANZO", lines.toString())
                     }
-                    status.text = "Imeunganishwa • \${response.optString("model", "MKUU")}"
+                    status.text = "Imeunganishwa • ${response.optString("model", "MKUU")}"
                     sendButton.isEnabled = true
                 }
             } catch (error: Exception) {
                 runOnUiThread {
-                    status.text = "Imeshindikana: \${error.message ?: "tatizo la connection"}"
+                    status.text = "Imeshindikana: ${error.message ?: "tatizo la connection"}"
                     sendButton.isEnabled = true
                 }
             }
