@@ -3,6 +3,7 @@ package tz.mkuu.foundationchat
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
+import android.text.InputType
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.Button
@@ -61,6 +62,7 @@ class MainActivity : Activity() {
 
         apiToken = EditText(this).apply {
             hint = "Access token kutoka Colab"
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             textSize = 14f
             setSingleLine(true)
             setText(prefs.getString("api_token", ""))
