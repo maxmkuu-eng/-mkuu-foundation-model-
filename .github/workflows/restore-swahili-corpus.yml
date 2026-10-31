@@ -112,7 +112,9 @@ jobs:
               "training_approved": True,
               "python": sys.version,
               "platform": platform.platform(),
-              "split_counts": {},\n              "tokenizer_vocab_size": 0,\n              "outputs": {}
+              "split_counts": {},
+              "tokenizer_vocab_size": 0,
+              "outputs": {}
           }
           for split in ("train", "validation", "test"):
               p = root / "splits" / f"{split}.jsonl"
