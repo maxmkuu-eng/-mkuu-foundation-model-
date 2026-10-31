@@ -72,6 +72,25 @@ jobs:
           print("Tokenizer vocabulary:", tokenizer.get_piece_size())
           PY
 
+      - name: Create bounded real-corpus smoke samples
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          root = Path("output/splits")
+          limits = {"train": 512, "validation": 128, "test": 128}
+          for split, limit in limits.items():
+              source = root / f"{split}.jsonl"
+              target = root / f"{split}_smoke.jsonl"
+              with source.open(encoding="utf-8") as src, target.open("w", encoding="utf-8") as dst:
+                  for index, line in enumerate(src):
+                      if index >= limit:
+                          break
+                      dst.write(line)
+              if target.stat().st_size == 0:
+                  raise SystemExit(f"Smoke sample is empty: {split}")
+              print(f"{split}: {min(limit, index + 1)} sampled records")
+          PY
+
       - name: Build tiny smoke-training configuration
         run: |
           python - <<'PY'
@@ -103,7 +122,7 @@ jobs:
         run: |
           python training/pretrain.py \
             --config output/smoke_config.yaml \
-            --data output/splits/train.jsonl \
+            --data output/splits/train_smoke.jsonl \
             --tokenizer output/mkuu_swahili_spm.model \
             --output output/smoke-checkpoint
 
@@ -112,12 +131,12 @@ jobs:
           python scripts/evaluate.py \
             --checkpoint output/smoke-checkpoint/last.pt \
             --tokenizer output/mkuu_swahili_spm.model \
-            --data output/splits/validation.jsonl \
+            --data output/splits/validation_smoke.jsonl \
             --split validation
           python scripts/evaluate.py \
             --checkpoint output/smoke-checkpoint/last.pt \
             --tokenizer output/mkuu_swahili_spm.model \
-            --data output/splits/test.jsonl \
+            --data output/splits/test_smoke.jsonl \
             --split test
 
       - name: Upload smoke-training evidence
