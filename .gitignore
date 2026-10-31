@@ -16,3 +16,9 @@ artifacts/*
 checkpoints/*
 !checkpoints/.gitkeep
 .pytest_cache/
+
+# Android/Gradle build outputs
+.gradle/
+**/build/
+local.properties
+.idea/
