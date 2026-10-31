@@ -62,7 +62,7 @@ jobs:
             --source ngusadeep-swahili-corpus \
             --version edc06d0eac67b8dcbedc476f93875dd1fb6349b1 \
             --source-url https://huggingface.co/datasets/ngusadeep/Swahili-Corpus-Dataset \
-            --license PENDING-REVIEW \
+            --license CC-BY-4.0 \
             --max-chars 5000
 
       - name: Write reproducibility manifest
@@ -76,8 +76,8 @@ jobs:
               "source_revision": "edc06d0eac67b8dcbedc476f93875dd1fb6349b1",
               "source_sha256": "057bacef92295b5ece75347861e9a6feff658af0631bea948b2b448562d229cd",
               "cleaner": "data/clean_swahili_corpus.py",
-              "license_status": "pending",
-              "training_approved": False,
+              "license_status": "approved",
+              "training_approved": True,
               "python": sys.version,
               "platform": platform.platform(),
               "outputs": {}
