@@ -148,6 +148,7 @@ class MainActivity : Activity() {
         prefs.edit().putString("endpoint", base).putString("api_key", apiKey.text.toString().trim()).apply()
         addMessage("WEWE", message, true)
         input.text.clear()
+        val requestKey = apiKey.text.toString().trim()
         send.isEnabled = false
         send.text = "..."
         thread {
@@ -159,8 +160,7 @@ class MainActivity : Activity() {
                     readTimeout = 180000
                     doOutput = true
                     setRequestProperty("Content-Type", "application/json; charset=utf-8")
-                    val key = apiKey.text.toString().trim()
-                    if (key.isNotEmpty()) setRequestProperty("X-Mkuu-Key", key)
+                    if (requestKey.isNotEmpty()) setRequestProperty("X-Mkuu-Key", requestKey)
                 }
                 val payload = JSONObject().put("message", message).put("max_new_tokens", 96).toString()
                 connection.outputStream.use { it.write(payload.toByteArray(Charsets.UTF_8)) }
