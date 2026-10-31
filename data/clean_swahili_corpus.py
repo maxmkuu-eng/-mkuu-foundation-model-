@@ -106,7 +106,7 @@ def main():
     parser.add_argument("--source", default="ngusadeep-swahili-corpus")
     parser.add_argument("--version", default="hf-snapshot-edc06d0")
     parser.add_argument("--source-url", default="https://huggingface.co/datasets/ngusadeep/Swahili-Corpus-Dataset")
-    parser.add_argument("--license", default="PENDING-REVIEW")
+    parser.add_argument("--license", default="CC-BY-4.0")
     parser.add_argument("--max-chars", type=int, default=5000)
     args = parser.parse_args()
     result = clean_corpus(
