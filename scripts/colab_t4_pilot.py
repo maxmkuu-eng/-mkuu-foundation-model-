@@ -138,7 +138,7 @@ class TokenMemmapDataset(Dataset):
             meta = json.loads(self.idx_path.read_text(encoding="utf-8"))
             if (meta.get("source_size") == Path(jsonl_path).stat().st_size
                     and meta.get("seq_len") == seq_len
-                    and meta.get("tokenizer_sha256") == sha256(tokenizer.model_file())):
+                    and meta.get("tokenizer_sha256") == hashlib.sha256(tokenizer.serialized_model_proto()).hexdigest()):
                 self.offsets = meta["offsets"]
                 self.tokens = np.memmap(self.bin_path, dtype=np.uint16, mode="r")
                 print(f"Using token cache {self.bin_path}: {len(self.offsets):,} sequences", flush=True)
@@ -167,7 +167,7 @@ class TokenMemmapDataset(Dataset):
         tmp.replace(self.bin_path)
         self.idx_path.write_text(json.dumps({
             "source_size": Path(jsonl_path).stat().st_size,
-            "seq_len": seq_len, "tokenizer_sha256": sha256(tokenizer.model_file()),
+            "seq_len": seq_len, "tokenizer_sha256": hashlib.sha256(tokenizer.serialized_model_proto()).hexdigest(),
             "offsets": self.offsets,
         }), encoding="utf-8")
         if not self.offsets:
