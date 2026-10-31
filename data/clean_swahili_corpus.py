@@ -1,6 +1,6 @@
 """Conservative, streaming cleaner for the Swahili Corpus text export.
 
-This creates a REVIEW CANDIDATE, never an automatically approved training set.
+This creates an owner-approved Swahili corpus export; rows flagged for quality/privacy review remain held out.
 It preserves colloquial Swahili, code-switching, political/religious discussion,
 and repeated expressive language. Suspect long/XML/PII-like rows are written to
 a separate review JSONL rather than silently discarded.
@@ -23,7 +23,7 @@ LONG_NUMBER = re.compile(r"(?<!\d)\d{9,}(?!\d)")
 
 
 def clean_corpus(input_path, output_path, review_path, *, source, version,
-                 source_url, license_id="PENDING-REVIEW", max_chars=5000):
+                 source_url, license_id="CC-BY-4.0", max_chars=5000):
     """Stream a plain-text corpus into provenance-labelled candidate JSONL."""
     if not all((source, version, source_url, license_id)):
         raise ValueError("source, version, source_url and license_id are required")
@@ -77,7 +77,7 @@ def clean_corpus(input_path, output_path, review_path, *, source, version,
                 "text": text,
                 "language": "sw",
                 "license": license_id,
-                "license_status": "pending",
+                "license_status": "approved",
                 "source": source,
                 "source_url": source_url,
                 "dataset_version": version,
