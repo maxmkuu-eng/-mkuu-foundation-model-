@@ -1,0 +1,103 @@
+name: Restore and clean Swahili corpus
+
+on:
+  push:
+    branches:
+      - foundation-model-smoke-training
+    paths:
+      - ".github/workflows/restore-swahili-corpus.yml"
+      - "data/clean_swahili_corpus.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: restore-swahili-corpus
+  cancel-in-progress: false
+
+jobs:
+  restore-and-clean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Hugging Face Hub client
+        run: python -m pip install --upgrade huggingface_hub
+
+      - name: Download the exact previously inspected source snapshot
+        env:
+          HF_HUB_DISABLE_TELEMETRY: "1"
+        run: |
+          python - <<'PY'
+          from huggingface_hub import hf_hub_download
+          path = hf_hub_download(
+              repo_id="ngusadeep/Swahili-Corpus-Dataset",
+              repo_type="dataset",
+              filename="Swahili_Corpus_combined.txt",
+              revision="edc06d0eac67b8dcbedc476f93875dd1fb6349b1",
+              local_dir="work/source",
+          )
+          print(f"Downloaded source: {path}")
+          PY
+
+      - name: Verify source integrity
+        run: |
+          echo "057bacef92295b5ece75347861e9a6feff658af0631bea948b2b448562d229cd  work/source/Swahili_Corpus_combined.txt" | sha256sum --check
+
+      - name: Rebuild the review candidate and held-for-review file
+        run: |
+          mkdir -p output
+          python data/clean_swahili_corpus.py \
+            --input work/source/Swahili_Corpus_combined.txt \
+            --output output/swahili_candidate_v2.jsonl \
+            --review output/held_for_review_v2.jsonl \
+            --source ngusadeep-swahili-corpus \
+            --version edc06d0eac67b8dcbedc476f93875dd1fb6349b1 \
+            --source-url https://huggingface.co/datasets/ngusadeep/Swahili-Corpus-Dataset \
+            --license PENDING-REVIEW \
+            --max-chars 5000
+
+      - name: Write reproducibility manifest
+        run: |
+          python - <<'PY'
+          import hashlib, json, pathlib, platform, sys
+          root = pathlib.Path("output")
+          manifest = {
+              "source_repo": "ngusadeep/Swahili-Corpus-Dataset",
+              "source_file": "Swahili_Corpus_combined.txt",
+              "source_revision": "edc06d0eac67b8dcbedc476f93875dd1fb6349b1",
+              "source_sha256": "057bacef92295b5ece75347861e9a6feff658af0631bea948b2b448562d229cd",
+              "cleaner": "data/clean_swahili_corpus.py",
+              "license_status": "pending",
+              "training_approved": False,
+              "python": sys.version,
+              "platform": platform.platform(),
+              "outputs": {}
+          }
+          for name in ("swahili_candidate_v2.jsonl", "held_for_review_v2.jsonl"):
+              p = root / name
+              h = hashlib.sha256()
+              with p.open("rb") as f:
+                  for block in iter(lambda: f.read(1024 * 1024), b""):
+                      h.update(block)
+              manifest["outputs"][name] = {"bytes": p.stat().st_size, "sha256": h.hexdigest()}
+          (root / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+          PY
+          sha256sum output/*
+
+      - name: Upload restored dataset files as a workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mkuu-swahili-corpus-review-candidate
+          path: output/
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 90
