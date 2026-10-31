@@ -60,7 +60,7 @@ def chat(request: ChatRequest, x_mkuu_key: Optional[str] = Header(default=None))
     if API_KEY and x_mkuu_key != API_KEY: raise HTTPException(status_code=401, detail='Invalid MKUU API key')
     try: load_model()
     except Exception as exc: raise HTTPException(status_code=503, detail=f'MKUU model is not ready: {exc}')
-    prompt = f'<|user|>\\n{request.message.strip()}\\n<|assistant|>\\n'
+    prompt = f'<|user|>\n{request.message.strip()}\n<|assistant|>\n'
     ids = _tokenizer.encode(prompt, out_type=int)
     if not ids: raise HTTPException(status_code=400, detail='Prompt could not be tokenized')
     generated, eos = list(ids), _tokenizer.eos_id()
