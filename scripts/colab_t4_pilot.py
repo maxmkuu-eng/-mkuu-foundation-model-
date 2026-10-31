@@ -25,6 +25,8 @@ import yaml
 from torch.utils.data import Dataset, DataLoader
 
 ROOT = Path(__file__).resolve().parents[1]
+# Make repository packages (data/, model.py, tokenizer/) importable when launched as a script.
+sys.path.insert(0, str(ROOT))
 SOURCE_REPO = "ngusadeep/Swahili-Corpus-Dataset"
 SOURCE_REV = "edc06d0eac67b8dcbedc476f93875dd1fb6349b1"
 SOURCE_FILE = "Swahili_Corpus_combined.txt"
