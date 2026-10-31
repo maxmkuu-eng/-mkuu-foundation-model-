@@ -67,7 +67,7 @@ def test_cleaner_holds_long_xml_and_possible_phone_rows(tmp_path):
     assert stats["candidate_rows"] == 0
 
 
-def test_cleaner_keeps_provenance_and_marks_license_pending(tmp_path):
+def test_cleaner_keeps_provenance_and_marks_license_approved(tmp_path):
     source = tmp_path / "source.txt"
     source.write_text("Hii ni sentensi ya Kiswahili kwa majaribio.\n", encoding="utf-8")
 
@@ -81,8 +81,8 @@ def test_cleaner_keeps_provenance_and_marks_license_pending(tmp_path):
     assert row["source"] == "sw-corpus"
     assert row["dataset_version"] == "snapshot-1"
     assert row["document_id"] == "sw-corpus:snapshot-1:line-1"
-    assert row["license"] == "PENDING-REVIEW"
-    assert row["license_status"] == "pending"
+    assert row["license"] == "CC-BY-4.0"
+    assert row["license_status"] == "approved"
 
 
 def test_pretraining_rejects_pending_license_records(tmp_path):
