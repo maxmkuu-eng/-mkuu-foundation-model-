@@ -136,7 +136,9 @@ class TokenMemmapDataset(Dataset):
         self.seq_len = seq_len
         if self.bin_path.exists() and self.idx_path.exists():
             meta = json.loads(self.idx_path.read_text(encoding="utf-8"))
-            if meta.get("source_size") == Path(jsonl_path).stat().st_size and meta.get("seq_len") == seq_len:
+            if (meta.get("source_size") == Path(jsonl_path).stat().st_size
+                    and meta.get("seq_len") == seq_len
+                    and meta.get("tokenizer_sha256") == sha256(tokenizer.model_file())):
                 self.offsets = meta["offsets"]
                 self.tokens = np.memmap(self.bin_path, dtype=np.uint16, mode="r")
                 print(f"Using token cache {self.bin_path}: {len(self.offsets):,} sequences", flush=True)
@@ -165,7 +167,8 @@ class TokenMemmapDataset(Dataset):
         tmp.replace(self.bin_path)
         self.idx_path.write_text(json.dumps({
             "source_size": Path(jsonl_path).stat().st_size,
-            "seq_len": seq_len, "offsets": self.offsets,
+            "seq_len": seq_len, "tokenizer_sha256": sha256(tokenizer.model_file()),
+            "offsets": self.offsets,
         }), encoding="utf-8")
         if not self.offsets:
             raise RuntimeError(f"No token sequences generated from {jsonl_path}")
@@ -278,8 +281,7 @@ def train(train_ds, raw_cfg, tokenizer_size, checkpoint_dir, steps, save_every, 
                           f"gpu_peak_gb={torch.cuda.max_memory_allocated()/1024**3:.2f}", flush=True)
                     loss_sum = 0.0
                 if step % save_every == 0:
-                    save_checkpoint(checkpoint_dir / f"step-{step}.pt", model, optimizer,
-                                    scaler, step, cfg, best_loss)
+                    # Keep one rolling full checkpoint to avoid filling the user's Drive.
                     save_checkpoint(checkpoint_dir / "last.pt", model, optimizer,
                                     scaler, step, cfg, best_loss)
                 if step >= max_steps:
