@@ -166,7 +166,7 @@ class MainActivity : Activity() {
             if (token.isNotEmpty()) setRequestProperty("Authorization", "Bearer $token")
         }
         val historyJson = JSONArray()
-        history.takeLast(8).forEach { (role, content) ->
+        history.takeLast(4).forEach { (role, content) ->
             historyJson.put(JSONObject().put("role", role).put("content", content))
         }
         val body = JSONObject()
