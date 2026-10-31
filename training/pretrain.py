@@ -16,6 +16,11 @@ class TextDataset(Dataset):
                 row=json.loads(line)
                 if not row.get("license") or not row.get("source"):
                     raise ValueError(f"Line {line_no}: license and source provenance are required")
+                if row.get("license_status", "approved") != "approved":
+                    raise ValueError(
+                        f"Line {line_no}: source license status is not approved; "
+                        "pending-review data cannot be used for pretraining"
+                    )
                 text=row.get("text")
                 if not isinstance(text,str) or not text.strip():
                     raise ValueError(f"Line {line_no}: text must be non-empty")
