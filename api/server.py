@@ -17,13 +17,13 @@ from scripts.generate import generate, load_model
 CHECKPOINT = os.getenv("MKUU_CHECKPOINT", "/content/drive/MyDrive/MKUU-Foundation-Model/checkpoints/last.pt")
 TOKENIZER = os.getenv("MKUU_TOKENIZER", "/content/drive/MyDrive/MKUU-Foundation-Model/mkuu_swahili_spm.model")
 API_TOKEN = os.getenv("MKUU_API_TOKEN", "")
-MAX_HISTORY_MESSAGES = 8
+MAX_HISTORY_MESSAGES = 4
 runtime = {"model": None, "tokenizer": None, "device": None, "load_error": None}
 
 
 class HistoryMessage(BaseModel):
     role: Literal["user", "assistant"]
-    content: str = Field(min_length=1, max_length=4000)
+    content: str = Field(min_length=1, max_length=1200)
 
 
 class ChatRequest(BaseModel):
@@ -52,7 +52,7 @@ def search_web(query: str, limit: int = 5) -> list[dict]:
             results.append({
                 "title": link.get_text(" ", strip=True)[:240],
                 "url": link["href"],
-                "snippet": snippet.get_text(" ", strip=True)[:700] if snippet else "",
+                "snippet": snippet.get_text(" ", strip=True)[:450] if snippet else "",
             })
             if len(results) >= limit:
                 break
